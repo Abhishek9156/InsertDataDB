@@ -1,13 +1,19 @@
 package com.example.uploadimage;
+
+import android.app.DatePickerDialog;
 import android.os.Bundle;
 
+import android.widget.DatePicker;
 import android.widget.Toast;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -16,14 +22,18 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.net.Uri;
 import android.provider.MediaStore;
+
 import java.io.BufferedReader;
 import java.net.URLEncoder;
 import java.util.Map;
 import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
 import java.net.URL;
+
 import javax.net.ssl.HttpsURLConnection;
+
 import java.io.UnsupportedEncodingException;
+
 import android.util.Base64;
 import android.view.View;
 import android.widget.Button;
@@ -35,35 +45,44 @@ public class MainActivity extends AppCompatActivity {
     Bitmap bitmap;
 
     boolean check = true;
-
+    DatePickerDialog datePickerDialog;
     Button SelectImageGallery, UploadImageServer;
 
     ImageView imageView;
 
-    EditText imageName;
+    EditText lname, fname, email, mno, ad, dob;
 
-    ProgressDialog progressDialog ;
+    ProgressDialog progressDialog;
 
-    String GetImageNameEditText;
+    String getfname, getemail, getmno, getdob, getad,GetImageNameEditText;
 
-    String ImageName = "image_name" ;
 
-    String ImagePath = "image_path" ;
+    String dad = "ad";
+    String demail = "email";
+    String dmno = "mno";
 
-    String ServerUploadPath ="https://kkak123.000webhostapp.com/img_upload_to_server.php" ;
+String ImageName="image_name";
+    String ImagePath = "image_path";
+    String dfname = "first_name";
+    String ddob="dob";
+    String ServerUploadPath = "https://kkak123.000webhostapp.com/img_upload_to_server.php";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        imageView = (ImageView)findViewById(R.id.imageView);
+        imageView =  findViewById(R.id.imageView);
+        ad = findViewById(R.id.ad);
+        dob = findViewById(R.id.dob);
+        lname = findViewById(R.id.lname);
+        fname = findViewById(R.id.fname);
+        email = findViewById(R.id.email);
+        mno = findViewById(R.id.mno);
 
-        imageName = (EditText)findViewById(R.id.editTextImageName);
+        SelectImageGallery = (Button) findViewById(R.id.buttonSelect);
 
-        SelectImageGallery = (Button)findViewById(R.id.buttonSelect);
-
-        UploadImageServer = (Button)findViewById(R.id.buttonUpload);
+        UploadImageServer = (Button) findViewById(R.id.buttonUpload);
 
         SelectImageGallery.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -81,11 +100,61 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
+//display calender
+        dob.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                final Calendar c = Calendar.getInstance();
+                int mYear = c.get(Calendar.YEAR); // current year
+                int mMonth = c.get(Calendar.MONTH); // current month
+                int mDay = c.get(Calendar.DAY_OF_MONTH); // current day
+                // date picker dialog
+                datePickerDialog = new DatePickerDialog(MainActivity.this,
+                        new DatePickerDialog.OnDateSetListener() {
+                            @Override
+                            public void onDateSet(DatePicker view, int year,
+                                                  int monthOfYear, int dayOfMonth) {
+                                // set day of month , month and year value in the edit text
+                                dob.setText(dayOfMonth + "/"
+                                        + (monthOfYear + 1) + "/" + year);
+                            }
+                        }, mYear, mMonth, mDay);
+                datePickerDialog.show();
+            }
+        });
+        ad.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                final Calendar c = Calendar.getInstance();
+                int mYear = c.get(Calendar.YEAR); // current year
+                int mMonth = c.get(Calendar.MONTH); // current month
+                int mDay = c.get(Calendar.DAY_OF_MONTH); // current day
+                // date picker dialog
+                datePickerDialog = new DatePickerDialog(MainActivity.this,
+                        new DatePickerDialog.OnDateSetListener() {
+                            @Override
+                            public void onDateSet(DatePicker view, int year,
+                                                  int monthOfYear, int dayOfMonth) {
+                                // set day of month , month and year value in the edit text
+                                ad.setText(dayOfMonth + "/"
+                                        + (monthOfYear + 1) + "/" + year);
+                            }
+                        }, mYear, mMonth, mDay);
+                datePickerDialog.show();
+            }
+        });
+
+
         UploadImageServer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                GetImageNameEditText = imageName.getText().toString();
+                GetImageNameEditText = lname.getText().toString();
+               getfname = fname.getText().toString();
+              getemail = email.getText().toString();
+                getmno = mno.getText().toString();
+                getdob = dob.getText().toString();
+                getad = ad.getText().toString();
 
                 ImageUploadToServerFunction();
 
@@ -94,9 +163,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-   protected void onActivityResult(int RC, int RQC, Intent I) {
+    protected void onActivityResult(int RC, int RQC, Intent I) {
 
-       super.onActivityResult(RC, RQC, I);
+        super.onActivityResult(RC, RQC, I);
 
         if (RC == 1 && RQC == RESULT_OK && I != null && I.getData() != null) {
 //use for image conversion/compession
@@ -106,18 +175,18 @@ public class MainActivity extends AppCompatActivity {
 
                 bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
 
-         imageView.setImageBitmap(bitmap);
+                imageView.setImageBitmap(bitmap);
 
             } catch (IOException e) {
 
                 e.printStackTrace();
-           }
+            }
         }
     }
 
-    public void ImageUploadToServerFunction(){
+    public void ImageUploadToServerFunction() {
 
-        ByteArrayOutputStream byteArrayOutputStreamObject ;
+        ByteArrayOutputStream byteArrayOutputStreamObject;
 
         byteArrayOutputStreamObject = new ByteArrayOutputStream();
 
@@ -127,14 +196,14 @@ public class MainActivity extends AppCompatActivity {
 
         final String ConvertImage = Base64.encodeToString(byteArrayVar, Base64.DEFAULT);
 
-        class AsyncTaskUploadClass extends AsyncTask<Void,Void,String> {
+        class AsyncTaskUploadClass extends AsyncTask<Void, Void, String> {
 
             @Override
             protected void onPreExecute() {
 
                 super.onPreExecute();
 
-                progressDialog = ProgressDialog.show(MainActivity.this,"Image is Uploading","Please Wait",false,false);
+                progressDialog = ProgressDialog.show(MainActivity.this, "Image is Uploading", "Please Wait", false, false);
             }
 
             @Override
@@ -146,7 +215,7 @@ public class MainActivity extends AppCompatActivity {
                 progressDialog.dismiss();
 
                 // Printing uploading success message coming from server on android app.
-                Toast.makeText(MainActivity.this,string1,Toast.LENGTH_LONG).show();
+                Toast.makeText(MainActivity.this, string1, Toast.LENGTH_LONG).show();
 
                 // Setting image as transparent after done uploading.
                 imageView.setImageResource(android.R.color.transparent);
@@ -159,12 +228,15 @@ public class MainActivity extends AppCompatActivity {
 
                 ImageProcessClass imageProcessClass = new ImageProcessClass();
 
-                HashMap<String,String> HashMapParams = new HashMap<String,String>();
+                HashMap<String, String> HashMapParams = new HashMap<String, String>();
 
                 HashMapParams.put(ImageName, GetImageNameEditText);
-
+                HashMapParams.put(dfname, getfname);
+                HashMapParams.put(ddob, getdob);
+                HashMapParams.put(dad, getad);
+                HashMapParams.put(dmno, getmno);
+                HashMapParams.put(demail, getemail);
                 HashMapParams.put(ImagePath, ConvertImage);
-
                 String FinalData = imageProcessClass.ImageHttpRequest(ServerUploadPath, HashMapParams);
 
                 return FinalData;
@@ -175,20 +247,20 @@ public class MainActivity extends AppCompatActivity {
         AsyncTaskUploadClassOBJ.execute();
     }
 
-    public class ImageProcessClass{
+    public class ImageProcessClass {
 
-        public String ImageHttpRequest(String requestURL,HashMap<String, String> PData) {
+        public String ImageHttpRequest(String requestURL, HashMap<String, String> PData) {
 
             StringBuilder stringBuilder = new StringBuilder();
 
             try {
 
                 URL url;
-                HttpURLConnection httpURLConnectionObject ;
+                HttpURLConnection httpURLConnectionObject;
                 OutputStream OutPutStream;
-                BufferedWriter bufferedWriterObject ;
-                BufferedReader bufferedReaderObject ;
-                int RC ;
+                BufferedWriter bufferedWriterObject;
+                BufferedReader bufferedReaderObject;
+                int RC;
 
                 url = new URL(requestURL);
 
@@ -228,7 +300,7 @@ public class MainActivity extends AppCompatActivity {
 
                     String RC2;
 
-                    while ((RC2 = bufferedReaderObject.readLine()) != null){
+                    while ((RC2 = bufferedReaderObject.readLine()) != null) {
 
                         stringBuilder.append(RC2);
                     }
